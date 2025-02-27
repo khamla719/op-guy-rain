@@ -1,12 +1,24 @@
 // Main app initialization
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM fully loaded, initializing app...");
     // Initialize the app
-    initializeApp();
+    try {
+        initializeApp();
+        console.log("App initialized successfully");
+    } catch (error) {
+        console.error("Error during initialization:", error);
+    }
 });
 
 function initializeApp() {
     // Set up event listeners
-    document.getElementById('start-btn').addEventListener('click', startQuestionnaire);
+    const startBtn = document.getElementById('start-btn');
+    console.log("Start button found:", startBtn);
+    
+    startBtn.addEventListener('click', function() {
+        console.log("Start button clicked, starting questionnaire...");
+        startQuestionnaire();
+    });
     document.getElementById('prev-question-btn').addEventListener('click', showPrevQuestion);
     document.getElementById('next-question-btn').addEventListener('click', showNextQuestion);
     document.getElementById('roll-btn').addEventListener('click', rollDice);
@@ -35,13 +47,28 @@ function initializeApp() {
 
 // Screen navigation
 function showScreen(screenId) {
-    // Hide all screens
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    
-    // Show the specified screen
-    document.getElementById(screenId).classList.add('active');
+    try {
+        console.log(`Attempting to show screen: ${screenId}`);
+        
+        // Check if the screen exists
+        const targetScreen = document.getElementById(screenId);
+        if (!targetScreen) {
+            console.error(`Screen with ID '${screenId}' not found`);
+            return;
+        }
+        
+        // Hide all screens
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+            console.log(`Removed 'active' class from: ${screen.id}`);
+        });
+        
+        // Show the specified screen
+        targetScreen.classList.add('active');
+        console.log(`Added 'active' class to: ${screenId}`);
+    } catch (error) {
+        console.error(`Error showing screen '${screenId}':`, error);
+    }
 }
 
 // User data management
@@ -64,70 +91,137 @@ function saveUserData() {
 // Questionnaire functionality
 const ikigaiQuestions = [
     {
-        id: 'passion',
-        text: 'What activities make you lose track of time because you enjoy them so much?'
+        id: 'activities',
+        text: 'What activities or hobbies make you lose track of time?',
+        description: 'Describe moments when you felt deeply engaged and joyful.',
+        type: 'text'
     },
     {
-        id: 'mission',
-        text: 'What causes or issues in the world do you care deeply about?'
-    },
-    {
-        id: 'vocation',
-        text: 'What skills or talents do you have that you\'re proud of or that others value?'
-    },
-    {
-        id: 'profession',
-        text: 'What activities would you be willing to do even if you weren\'t paid for them?'
+        id: 'strengths',
+        text: 'What strengths or talents do you feel come naturally to you?',
+        description: 'Share examples of skills you excel in effortlessly.',
+        type: 'text'
     },
     {
         id: 'values',
-        text: 'What personal values are most important to you in how you spend your time?'
+        text: 'Which core values or principles guide your decisions in life?',
+        description: 'Reflect on the beliefs that shape who you are.',
+        type: 'text'
+    },
+    {
+        id: 'challenges',
+        text: 'What challenges or causes in the world resonate with you the most?',
+        description: 'Explain why these issues feel important to address.',
+        type: 'text'
+    },
+    {
+        id: 'ideal_life',
+        text: 'If you had no limitations, what would your ideal life or career look like?',
+        description: 'Imagine a future where your passions, talents, and values merge seamlessly.',
+        type: 'text'
     }
 ];
 
 let currentQuestionIndex = 0;
 
 function startQuestionnaire() {
+    console.log("Starting questionnaire...");
     currentQuestionIndex = 0;
-    renderCurrentQuestion();
+    console.log("Current question index reset to:", currentQuestionIndex);
+    
+    try {
+        renderCurrentQuestion();
+        console.log("First question rendered successfully");
+    } catch (error) {
+        console.error("Error rendering first question:", error);
+    }
+    
     showScreen('questionnaire-screen');
+    console.log("Questionnaire screen shown");
 }
 
 function renderCurrentQuestion() {
-    const question = ikigaiQuestions[currentQuestionIndex];
-    const container = document.getElementById('question-container');
-    
-    container.innerHTML = `
-        <div class="question" data-id="${question.id}">
-            <p class="question-text">${question.text}</p>
-            <textarea 
-                id="answer-${question.id}" 
-                placeholder="Your answer..."
-            >${userData.answers[question.id] || ''}</textarea>
-        </div>
-        <div class="question-progress">
-            Question ${currentQuestionIndex + 1} of ${ikigaiQuestions.length}
-        </div>
-    `;
+    try {
+        console.log("Rendering question at index:", currentQuestionIndex);
+        const question = ikigaiQuestions[currentQuestionIndex];
+        console.log("Current question:", question);
+        
+        const container = document.getElementById('question-container');
+        console.log("Question container found:", container);
+        
+        let questionHTML = '';
+        
+        try {
+            // All questions are now text input
+            questionHTML = `
+                <div class="question" data-id="${question.id}">
+                    <p class="question-text">${question.text}</p>
+                    <p class="question-description">${question.description}</p>
+                    <textarea 
+                        id="answer-${question.id}" 
+                        placeholder="Your answer..."
+                        rows="4"
+                    >${userData.answers[question.id] || ''}</textarea>
+                </div>
+            `;
+            
+            // Calculate progress percentage
+            const progressPercent = ((currentQuestionIndex + 1) / ikigaiQuestions.length) * 100;
+            
+            container.innerHTML = `
+                ${questionHTML}
+                <div class="question-progress">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Question ${currentQuestionIndex + 1} of ${ikigaiQuestions.length}</span>
+                        <span>${Math.round(progressPercent)}% complete</span>
+                    </div>
+                </div>
+            `;
+            console.log("Question HTML generated and inserted successfully");
+        } catch (error) {
+            console.error("Error generating question HTML:", error);
+            container.innerHTML = `
+                <div class="error-message">
+                    <p>Sorry, there was an error rendering this question. Please try again.</p>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
 
-    // Update navigation buttons
-    document.getElementById('prev-question-btn').disabled = currentQuestionIndex === 0;
-    
-    if (currentQuestionIndex === ikigaiQuestions.length - 1) {
-        document.getElementById('next-question-btn').textContent = 'Finish';
-    } else {
-        document.getElementById('next-question-btn').textContent = 'Next';
+        // Update navigation buttons
+        document.getElementById('prev-question-btn').disabled = currentQuestionIndex === 0;
+        
+        if (currentQuestionIndex === ikigaiQuestions.length - 1) {
+            document.getElementById('next-question-btn').textContent = 'Finish';
+        } else {
+            document.getElementById('next-question-btn').textContent = 'Next';
+        }
+        
+        console.log("Navigation buttons updated");
+    } catch (error) {
+        console.error("Error in renderCurrentQuestion:", error);
     }
 }
 
 function saveCurrentAnswer() {
     const question = ikigaiQuestions[currentQuestionIndex];
-    const answerTextarea = document.getElementById(`answer-${question.id}`);
     
-    if (answerTextarea) {
-        userData.answers[question.id] = answerTextarea.value.trim();
-        saveUserData();
+    if (question.type === 'checkbox') {
+        // For checkbox questions, collect all checked values
+        const checkboxes = document.querySelectorAll(`input[name="${question.id}"]:checked`);
+        userData.answers[question.id] = Array.from(checkboxes).map(cb => cb.value);
+    } else {
+        // For text questions
+        const answerTextarea = document.getElementById(`answer-${question.id}`);
+        if (answerTextarea) {
+            userData.answers[question.id] = answerTextarea.value.trim();
+        }
     }
+    
+    saveUserData();
 }
 
 function showNextQuestion() {
@@ -194,9 +288,37 @@ async function getAISuggestion(diceValue) {
         // Prepare the prompt based on user's answers
         currentPrompt = prepareAIPrompt(diceValue);
         
-        // In a real implementation, you would make an API call to OpenAI or similar
-        // For this MVP, we'll simulate a response
-        const suggestion = await simulateAIResponse(currentPrompt);
+        // Call our server API to get a suggestion from DeepSeek's chat model
+        const response = await fetch('/api/generate-suggestion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt: currentPrompt }),
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        let suggestion = data.suggestion;
+        
+        // Parse the suggestion to extract parts (assuming markdown format)
+        let activityText = suggestion;
+        let reasonText = "";
+        
+        // Try to extract activity and reason based on our requested format
+        const activityMatch = suggestion.match(/\*\*Activity:\*\*\s*(.*?)(?=\*\*Why|$)/is);
+        const reasonMatch = suggestion.match(/\*\*Why this aligns with your values:\*\*\s*(.*?)$/is);
+        
+        if (activityMatch && activityMatch[1]) {
+            activityText = activityMatch[1].trim();
+        }
+        
+        if (reasonMatch && reasonMatch[1]) {
+            reasonText = reasonMatch[1].trim();
+        }
         
         // Generate a call to action header from the suggestion
         const callToAction = generateCallToAction(suggestion);
@@ -204,72 +326,114 @@ async function getAISuggestion(diceValue) {
         // Update the result screen heading
         document.querySelector('#result-screen h2').textContent = callToAction;
         
-        // Display the result
+        // Display the result in a more structured format
         document.getElementById('suggestion-container').innerHTML = `
-            <p class="suggestion-text">${suggestion}</p>
+            <div class="suggestion-card">
+                <p class="suggestion-text">${activityText}</p>
+                ${reasonText ? `<p class="suggestion-reason"><strong>Why:</strong> ${reasonText}</p>` : ''}
+            </div>
         `;
     } catch (error) {
         console.error('Error getting AI suggestion:', error);
         document.getElementById('suggestion-container').innerHTML = `
             <p>Sorry, we couldn't generate a suggestion right now. Please try again.</p>
+            <p class="error-message">${error.message}</p>
         `;
     }
 }
 
 function prepareAIPrompt(diceValue) {
-    // Create a prompt for the AI based on the user's Ikigai answers and dice value
+    // Get the answers for each question
+    const activities = userData.answers.activities || '';
+    const strengths = userData.answers.strengths || '';
+    const values = userData.answers.values || '';
+    const challenges = userData.answers.challenges || '';
+    const idealLife = userData.answers.ideal_life || '';
     
-    let prompt = `Based on the following values, suggest a meaningful activity:
+    let prompt = `Based on the following personal reflections, suggest ONE specific, actionable activity:
     
-    Values: ${userData.answers.values || ''}
-    Passion: ${userData.answers.passion || ''}
-    Mission: ${userData.answers.mission || ''}
-    Vocation: ${userData.answers.vocation || ''}
-    Profession: ${userData.answers.profession || ''}
+    PASSIONS & ENGAGEMENT:
+    ${activities}
+    
+    NATURAL STRENGTHS & TALENTS:
+    ${strengths}
+    
+    CORE VALUES & PRINCIPLES:
+    ${values}
+    
+    CHALLENGES & CAUSES THAT MATTER:
+    ${challenges}
+    
+    IDEAL FUTURE VISION:
+    ${idealLife}
     
     REQUIREMENTS:
-    1. Suggest a SPECIFIC, IMMEDIATELY ACTIONABLE activity that can be started RIGHT NOW
-    2. The activity should have ZERO OBSTACLES - require no special resources, preparation, or equipment
-    3. Focus on activities with HIGH FOLLOW-THROUGH POTENTIAL - simple, clear first steps that create momentum
-    4. Include a specific timeframe (e.g., "spend 20 minutes on..." rather than vague durations)
-    5. Explain briefly why this activity aligns with the person's values and how it will benefit them
+    1. Format your response like this: "**Activity:** [concise activity description that can be done immediately]" followed by "**Why this aligns with your values:** [brief reason]"
+    2. The activity MUST be SPECIFIC and IMMEDIATELY ACTIONABLE - no vague suggestions
+    3. Include a clear timeframe (e.g., "spend 20 minutes on...")
+    4. Require NO special resources beyond what might be reasonably available
+    5. Keep your explanation brief and focused (maximum 2-3 sentences)
+    6. Make the activity distinctive and personalized based on their unique combination of values, strengths, and aspirations
+    7. Be bold and specific - suggest something concrete that they can start within the next 5 minutes
     
-    Format your response as a clear instruction followed by 1-2 sentences explaining the value alignment.`;
+    The dice roll was ${diceValue}, so add a small element of spontaneity to your suggestion based on this number (1-6).`;
     
     return prompt;
 }
 
-// This function simulates an AI API call for the MVP
-// In production, you would replace this with an actual API call to OpenAI, etc.
-function simulateAIResponse(prompt) {
-    return new Promise((resolve) => {
-        // Simulate API delay
-        setTimeout(() => {
-            // These are pre-written responses that would normally come from the AI
-            const simulatedResponses = [
-                "Take 15 minutes right now to write down three specific ways you could apply your technical skills to help a cause you care about. This simple brainstorming exercise connects your professional talents with your mission values, creating a bridge between what you're good at and what matters to you.",
-                
-                "Set a timer for 30 minutes right now and work on that creative project you've been thinking about. Silence notifications, focus completely, and just start. This dedicated time honors your passion for creative expression while providing the structure to overcome initial resistance.",
-                
-                "Open your browser now and spend 20 minutes researching one local organization aligned with your values and identify a specific way you could contribute. This leverages your desire to make an impact in your community while providing a concrete first step toward meaningful involvement.",
-                
-                "Grab the nearest book related to your field and read just one chapter (about 15 minutes). This small commitment makes learning manageable while honoring your value of continuous growth in your professional domain.",
-                
-                "Pick up your phone now and message one person in your network to share something you've learned recently. This quick connection exercise aligns with your value of knowledge-sharing and community building, creating a simple moment of meaningful engagement.",
-                
-                "Clear your desk for 10 minutes right now and write down your three most important tasks for tomorrow in order of priority. This brief organization session respects your value of intentionality and creates momentum for productive work aligned with your priorities."
-            ];
-            
-            // Choose a response based on the dice value
-            const responseIndex = Math.min(simulatedResponses.length - 1, Math.floor(Math.random() * simulatedResponses.length));
-            resolve(simulatedResponses[responseIndex]);
-        }, 1500);
-    });
-}
-
 // Generate a call to action header from the suggestion
 function generateCallToAction(suggestion) {
-    // Extract the first sentence for analysis
+    // Try to extract the activity from the markdown format first
+    const activityMatch = suggestion.match(/\*\*Activity:\*\*\s*(.*?)(?=\*\*Why|$)/is);
+    
+    if (activityMatch && activityMatch[1]) {
+        // We found the activity in the expected format
+        let activity = activityMatch[1].trim();
+        
+        // Extract just the core instruction (first sentence or before any explanation)
+        if (activity.includes('.')) {
+            activity = activity.split('.')[0].trim();
+        }
+        
+        // Remove any markdown formatting
+        activity = activity.replace(/\*\*/g, '').trim();
+        
+        // Extract timeframe if present
+        const timeMatch = activity.match(/(\d+)\s*minutes/i);
+        const hasTimeframe = timeMatch !== null;
+        
+        // Create action-oriented header
+        let callToAction = "";
+        
+        // If it starts with a verb, capitalize it
+        if (/^[a-z]+\s/.test(activity)) {
+            const firstSpace = activity.indexOf(' ');
+            if (firstSpace > 0) {
+                const verb = activity.substring(0, firstSpace);
+                const rest = activity.substring(firstSpace);
+                callToAction = verb.charAt(0).toUpperCase() + verb.slice(1) + rest;
+            } else {
+                callToAction = activity;
+            }
+        } else {
+            callToAction = activity;
+        }
+        
+        // Keep it concise
+        if (callToAction.length > 40) {
+            const breakPoint = callToAction.lastIndexOf(' ', 37);
+            callToAction = callToAction.substring(0, breakPoint > 0 ? breakPoint : 37) + '...';
+        }
+        
+        // Add exclamation mark if not present
+        if (!callToAction.endsWith('!')) {
+            callToAction += '!';
+        }
+        
+        return callToAction;
+    }
+    
+    // Fallback to the old method if the new format isn't found
     const firstSentence = suggestion.split('.')[0];
     let callToAction = "";
     
@@ -277,62 +441,34 @@ function generateCallToAction(suggestion) {
     if (firstSentence.match(/write down three|list three|identify three|brainstorm/i)) {
         callToAction = "Brainstorm 3 Problems to Solve";
     } 
-    else if (firstSentence.match(/set a timer for (\d+) minutes.*creative project/i)) {
+    else if (firstSentence.match(/set a timer for (\d+) minutes/i)) {
         const minutes = firstSentence.match(/set a timer for (\d+) minutes/i)[1];
-        callToAction = `${minutes}-Minute Creative Focus`;
+        callToAction = `${minutes}-Minute Focus Session`;
     }
-    else if (firstSentence.match(/research.*organization/i)) {
-        callToAction = "Research 1 Organization to Help";
+    else if (firstSentence.match(/research|find|look up|search for/i)) {
+        callToAction = "Research Your Next Move";
     }
-    else if (firstSentence.match(/read.*chapter|read.*book/i)) {
-        callToAction = "Read One Chapter";
+    else if (firstSentence.match(/read|check out|explore/i)) {
+        callToAction = "Expand Your Knowledge";
     }
-    else if (firstSentence.match(/message|text|contact|connect with/i)) {
-        callToAction = "Share Knowledge with 1 Person";
+    else if (firstSentence.match(/message|text|contact|connect with|reach out/i)) {
+        callToAction = "Make a Meaningful Connection";
     }
-    else if (firstSentence.match(/clear your desk|organize|write down.*tasks/i)) {
-        callToAction = "Prioritize Tomorrow's Tasks";
+    else if (firstSentence.match(/clear your|organize|clean|prepare|plan/i)) {
+        callToAction = "Create Space for Success";
     }
     else {
-        // Fallback: Create a simple imperative statement
-        // Extract the main verb and object
-        const words = firstSentence.split(' ');
-        const verb = words[0].replace(/e$/, '') + 'e'; // Normalize verb form
-        
-        // Find key objects in the sentence (typically after "to" or after timing info)
-        let object = "";
-        const toIndex = firstSentence.indexOf(' to ');
-        if (toIndex !== -1) {
-            object = firstSentence.substring(toIndex + 4, toIndex + 30)
-                .split(' ')
-                .slice(0, 4)
-                .join(' ');
-        } else {
-            // Look for object after time references
-            const timeMatch = firstSentence.match(/(\d+) minutes/);
-            if (timeMatch) {
-                const timeIndex = firstSentence.indexOf(timeMatch[0]) + timeMatch[0].length;
-                object = firstSentence.substring(timeIndex, timeIndex + 30)
-                    .split(' ')
-                    .slice(1, 5) // Skip leading words
-                    .join(' ');
-            }
-        }
-        
-        // Create concise call to action
-        if (object) {
-            const capitalizedVerb = verb.charAt(0).toUpperCase() + verb.slice(1);
-            callToAction = `${capitalizedVerb} ${object.replace(/\s+(and|the|a|an|to)\s+/gi, ' ')}`.trim();
-        } else {
-            // If we couldn't extract a good object, use a simplistic approach
-            callToAction = firstSentence
-                .replace(/^(take|spend|set|open|grab|pick up|clear|right now|now)/i, '')
-                .replace(/\s+(right now|now|just|simply)\s+/gi, ' ')
-                .trim()
-                .split(' ')
-                .slice(0, 4)
-                .join(' ');
-        }
+        // Extract just the action part (often the first 4-6 words are enough)
+        callToAction = firstSentence
+            .replace(/^(take|spend|set|open|grab|pick up|clear|right now|now)/i, '')
+            .replace(/\s+(right now|now|just|simply)\s+/gi, ' ')
+            .trim()
+            .split(' ')
+            .slice(0, 5)
+            .join(' ');
+            
+        // Capitalize first letter
+        callToAction = callToAction.charAt(0).toUpperCase() + callToAction.slice(1);
     }
     
     // Ensure it ends with an exclamation mark for emphasis
@@ -341,9 +477,9 @@ function generateCallToAction(suggestion) {
     }
     
     // Keep it concise
-    if (callToAction.length > 35) {
-        const breakPoint = callToAction.lastIndexOf(' ', 32);
-        callToAction = callToAction.substring(0, breakPoint > 0 ? breakPoint : 32) + '...';
+    if (callToAction.length > 40) {
+        const breakPoint = callToAction.lastIndexOf(' ', 37);
+        callToAction = callToAction.substring(0, breakPoint > 0 ? breakPoint : 37) + '...';
     }
     
     return callToAction;

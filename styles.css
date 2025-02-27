@@ -113,19 +113,38 @@ button {
 }
 
 .question-text {
-    font-size: 1.1rem;
+    font-size: 18px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    font-weight: 600;
+    color: #333;
+}
+
+.question-description {
+    font-size: 16px;
+    color: #666;
     margin-bottom: 15px;
-    font-weight: 500;
+    font-style: italic;
+    line-height: 1.4;
 }
 
 textarea {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
+    padding: 15px;
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
-    resize: vertical;
     min-height: 120px;
+    border: 1px solid #ddd;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #6a11cb;
+    box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.1);
 }
 
 /* Dice styles */
@@ -166,6 +185,35 @@ textarea {
     border-radius: 10px;
     margin-bottom: 20px;
     width: 100%;
+}
+
+.suggestion-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    border-left: 4px solid #6a11cb;
+}
+
+.suggestion-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #222;
+}
+
+.suggestion-reason {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #666;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+.suggestion-reason strong {
+    color: #6a11cb;
+    font-weight: 600;
 }
 
 .feedback-buttons {
@@ -280,4 +328,72 @@ pre {
 
 .action-buttons button {
     margin: 5px 10px;
+}
+
+/* Checkbox options styling */
+.checkbox-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 50px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.checkbox-option:hover {
+    background-color: #e9ecef;
+}
+
+.checkbox-option input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.checkbox-option span {
+    font-size: 14px;
+    color: #495057;
+}
+
+.checkbox-option input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #343a40;
+}
+
+/* Question progress styling */
+.question-progress {
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4361ee, #7209b7);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
 } 
