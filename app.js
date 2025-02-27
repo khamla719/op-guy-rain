@@ -373,7 +373,7 @@ function prepareAIPrompt(diceValue) {
     3. Include a clear timeframe (e.g., "spend 20 minutes on...")
     4. Require NO special resources beyond what might be reasonably available
     5. Keep your explanation brief and focused (maximum 2-3 sentences)
-    6. Make the activity distinctive and personalized based on their unique combination of values, strengths, and aspirations
+    6. Make the activity distinctive and personalized based on the given information
     7. Be bold and specific - suggest something concrete that they can start within the next 5 minutes
     
     The dice roll was ${diceValue}, so add a small element of spontaneity to your suggestion based on this number (1-6).`;
